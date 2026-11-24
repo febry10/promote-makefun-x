@@ -26,3 +26,18 @@ if (!back.equals(bytes)) {
   console.error("the copied POST.json differs from the repository's POST.json");
   process.exit(1);
 }
+
+// The gate reads exactly one field of this file, its `url`. Fail loudly
+// here rather than hand in a copy it cannot use: the JSON must parse and
+// the field must be a non-empty string.
+let url: unknown;
+try {
+  url = (JSON.parse(back.toString("utf8")) as { url?: unknown }).url;
+} catch {
+  console.error("POST.json is not valid JSON");
+  process.exit(1);
+}
+if (typeof url !== "string" || url.length === 0) {
+  console.error("POST.json carries no post url");
+  process.exit(1);
+}
